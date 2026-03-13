@@ -1,0 +1,95 @@
+# frozen_string_literal: true
+
+<%- if @configs['mock_with'] -%>
+RSpec.configure do |c|
+  c.mock_with <%= @configs['mock_with'] %>
+end
+
+<%- end -%>
+require 'puppetlabs_spec_helper/module_spec_helper'
+require 'rspec-puppet-facts'
+
+require 'spec_helper_local' if File.file?(File.join(File.dirname(__FILE__), 'spec_helper_local.rb'))
+
+include RspecPuppetFacts
+
+default_facts = {
+  puppetversion: Puppet.version,
+  facterversion: Facter.version,
+}
+
+default_fact_files = [
+  File.expand_path(File.join(File.dirname(__FILE__), 'default_facts.yml')),
+  File.expand_path(File.join(File.dirname(__FILE__), 'default_module_facts.yml')),
+]
+
+default_fact_files.each do |f|
+  next unless File.exist?(f) && File.readable?(f) && File.size?(f)
+
+  begin
+    require 'deep_merge'
+    default_facts.deep_merge!(YAML.safe_load_file(f, permitted_classes: [], permitted_symbols: [], aliases: true))
+  rescue StandardError => e
+    RSpec.configuration.reporter.message "WARNING: Unable to load #{f}: #{e}"
+  end
+end
+
+# read default_facts and merge them over what is provided by facterdb
+default_facts.each do |fact, value|
+  add_custom_fact fact, value, merge_facts: true
+end
+
+RSpec.configure do |c|
+  c.default_facts = default_facts
+  <%- if @configs['default_facter_version'] -%>
+  c.default_facter_version = '<%= @configs['default_facter_version'] %>'
+  <%- end -%>
+  <%- if @configs['facter_implementation'] -%>
+  c.facter_implementation = '<%= @configs['facter_implementation'] %>'
+  <%- end -%>
+  <%- if @configs['hiera_config'] -%>
+  c.hiera_config = '<%= @configs['hiera_config'] %>'
+  <%- elsif @configs['hiera_config_ruby'] -%>
+  c.hiera_config = <%= @configs['hiera_config_ruby'] %>
+  <%- end -%>
+  c.before :each do
+    <%- if @configs['strict_level'] -%>
+    # set to strictest setting for testing
+    # by default Puppet runs at warning level
+    Puppet.settings[:strict] = <%= @configs['strict_level'] %>
+    <%- end -%>
+    Puppet.settings[:strict_variables] = <%= @configs['strict_variables'] %>
+  end
+  c.filter_run_excluding(bolt: true) unless ENV['GEM_BOLT']
+  c.after(:suite) do
+    <%- if @configs['coverage_report'] -%>
+    RSpec::Puppet::Coverage.report!(<%= @configs['minimum_code_coverage_percentage'] %>)
+    <%- end -%>
+  end
+
+  # Filter backtrace noise
+  backtrace_exclusion_patterns = [
+    %r{spec_helper},
+    %r{gems},
+  ]
+
+  if c.respond_to?(:backtrace_exclusion_patterns)
+    c.backtrace_exclusion_patterns = backtrace_exclusion_patterns
+  elsif c.respond_to?(:backtrace_clean_patterns)
+    c.backtrace_clean_patterns = backtrace_exclusion_patterns
+  end
+end
+
+# Ensures that a module is defined
+# @param module_name Name of the module
+def ensure_module_defined(module_name)
+  module_name.split('::').reduce(Object) do |last_module, next_module|
+    last_module.const_set(next_module, Module.new) unless last_module.const_defined?(next_module, false)
+    last_module.const_get(next_module, false)
+  end
+end
+
+# 'spec_overrides' from sync.yml will appear below this line
+<%- [@configs['spec_overrides']].flatten.compact.each do |line| -%>
+<%= line %>
+<%- end -%>

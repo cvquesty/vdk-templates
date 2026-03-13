@@ -1,0 +1,637 @@
+---
+common:
+  owner: puppetlabs
+.gitattributes:
+  include:
+    '*.rb': 'eol=lf'
+    '*.erb': 'eol=lf'
+    '*.pp': 'eol=lf'
+    '*.sh': 'eol=lf'
+    '*.epp': 'eol=lf'
+.gitignore:
+  required: &ignorepaths
+    - '.git/'
+    - '.*.sw[op]'
+    - '.metadata'
+    - '.yardoc'
+    - '.yardwarns'
+    - '*.iml'
+    - '/.bundle/'
+    - '/.idea/'
+    - '/.vagrant/'
+    - '/coverage/'
+    - '/bin/'
+    - '/doc/'
+    - '/Gemfile.local'
+    - '/Gemfile.lock'
+    - '/junit/'
+    - '/log/'
+    - '/pkg/'
+    - '/spec/fixtures/manifests/'
+    - '/spec/fixtures/modules/*'
+    - '/tmp/'
+    - '/vendor/'
+    - '/.vendor/'
+    - '/convert_report.txt'
+    - '/update_report.txt'
+    - '.DS_Store'
+    - '.project'
+    - '.envrc'
+    - '/inventory.yaml'
+    - '/spec/fixtures/litmus_inventory.yaml'
+    - '.resource_types'
+    - '.modules'
+    - '.task_cache.json'
+    - '.plan_cache.json'
+    - '.rerun.json'
+    - 'bolt-debug.log'
+.vdkignore:
+  required: *ignorepaths
+  paths:
+    - '/.fixtures.yml'
+    - '/Gemfile'
+    - '/.gitattributes'
+    - '/.github/'
+    - '/.gitignore'
+    - '/.vdkignore'
+    - '/.openvox-lint.rc'
+    - '/Rakefile'
+    - '/rakelib/'
+    - '/.rspec'
+    - '/..yml'
+    - '/.yardopts'
+    - '/spec/'
+    - '/.vscode/'
+    - '/.sync.yml'
+    - '/.devcontainer/'
+.yardopts:
+  markup: markdown
+# Ensure that any changes to lint here are reflected within the rake_tasks.rb file inside the puppetlabs_spec_helper:
+# - https://github.com/puppetlabs/puppetlabs_spec_helper/blob/main/lib/puppetlabs_spec_helper/rake_tasks.rb#L124
+Rakefile:
+  changelog_version_tag_pattern: 'v%s'
+  linter_fail_on_warnings: true
+  default_disabled_lint_checks:
+    - 'relative'
+    - '80chars'
+    - '140chars'
+    - 'class_inherits_from_params_class'
+    - 'autoloader_layout'
+    - 'documentation'
+    - 'single_quote_string_with_variables'
+  linter_exclusions:
+    - '.vendor/**/*.pp'
+    - '.bundle/**/*.pp'
+    - 'pkg/**/*.pp'
+    - 'spec/**/*.pp'
+    - 'tests/**/*.pp'
+    - 'types/**/*.pp'
+    - 'vendor/**/*.pp'
+  extras: []
+.rubocop.yml:
+  selected_profile: strict
+  default_configs: &default_configs
+    Layout/LineLength:
+      Description: People have wide screens, use them.
+      Max: 200
+
+    # RSpec cops
+    RSpec/BeforeAfterAll:
+      Description: Beware of using after(:all) as it may cause state to leak between tests. A necessary evil in acceptance testing.
+      Exclude:
+        - 'spec/acceptance/**/*.rb'
+
+    RSpec/HookArgument:
+      Description: Prefer explicit :each argument, matching existing module's style
+      EnforcedStyle: each
+
+    RSpec/DescribeSymbol:
+      Exclude:
+        - 'spec/unit/facter/**/*.rb'
+
+    # Style Cops
+    Style/BlockDelimiters:
+      Description: Prefer braces for chaining. Mostly an aesthetical choice. Better to be consistent then.
+      EnforcedStyle: braces_for_chaining
+
+    Style/ClassAndModuleChildren:
+      Description: Compact style reduces the required amount of indentation.
+      EnforcedStyle: compact
+
+    Style/EmptyElse:
+      Description: Enforce against empty else clauses, but allow `nil` for clarity.
+      EnforcedStyle: empty
+
+    Style/FormatString:
+      Description: Following the main puppet project's style, prefer the % format format.
+      EnforcedStyle: percent
+
+    Style/FormatStringToken:
+      Description: Following the main puppet project's style, prefer the simpler template tokens over annotated ones.
+      EnforcedStyle: template
+
+    Style/Lambda:
+      Description: Prefer the keyword for easier discoverability.
+      EnforcedStyle: literal
+
+    Style/RegexpLiteral:
+      Description: Community preference. See https://github.com/voxpupuli/modulesync_config/issues/168
+      EnforcedStyle: percent_r
+
+    Style/TernaryParentheses:
+      Description: Checks for use of parentheses around ternary conditions. Enforce parentheses on complex expressions for better readability, but seriously consider breaking it up.
+      EnforcedStyle: require_parentheses_when_complex
+
+    Style/TrailingCommaInArguments:
+      Description: Prefer always trailing comma on multiline argument lists. This makes diffs, and re-ordering nicer.
+      EnforcedStyleForMultiline: comma
+
+    Style/TrailingCommaInArrayLiteral:
+      Description: Prefer always trailing comma on multiline literals. This makes diffs, and re-ordering nicer.
+      EnforcedStyleForMultiline: comma
+
+    Style/SymbolArray:
+      Description: Using percent style obscures symbolic intent of array's contents.
+      EnforcedStyle: brackets
+
+  cleanup_cops: &cleanup_cops
+    Bundler/OrderedGems:
+    Layout/AccessModifierIndentation:
+    Layout/ArrayAlignment:
+    Layout/ParameterAlignment:
+    Layout/BlockEndNewline:
+    Layout/CaseIndentation:
+    Layout/ClosingParenthesisIndentation:
+    Layout/CommentIndentation:
+    Layout/DotPosition:
+    Layout/ElseAlignment:
+    Layout/EmptyLineAfterMagicComment:
+    Layout/EmptyLineBetweenDefs:
+    Layout/EmptyLines:
+    Layout/EmptyLinesAroundAccessModifier:
+    Layout/EmptyLinesAroundBlockBody:
+    Layout/EmptyLinesAroundClassBody:
+    Layout/EmptyLinesAroundExceptionHandlingKeywords:
+    Layout/EmptyLinesAroundMethodBody:
+    Layout/EmptyLinesAroundModuleBody:
+    Layout/ExtraSpacing:
+    Layout/FirstParameterIndentation:
+    Layout/FirstArrayElementIndentation:
+    Layout/AssignmentIndentation:
+    Layout/FirstHashElementIndentation:
+    Layout/IndentationConsistency:
+    Layout/IndentationWidth:
+    Layout/InitialIndentation:
+    Layout/LeadingCommentSpace:
+    Layout/MultilineArrayBraceLayout:
+    Layout/MultilineBlockLayout:
+    Layout/MultilineHashBraceLayout:
+    Layout/MultilineMethodCallBraceLayout:
+    Layout/MultilineMethodCallIndentation:
+    Layout/MultilineMethodDefinitionBraceLayout:
+    Layout/MultilineOperationIndentation:
+    Layout/RescueEnsureAlignment:
+    Layout/SpaceAfterColon:
+    Layout/SpaceAfterComma:
+    Layout/SpaceAfterMethodName:
+    Layout/SpaceAfterNot:
+    Layout/SpaceAfterSemicolon:
+    Layout/SpaceAroundBlockParameters:
+    Layout/SpaceAroundEqualsInParameterDefault:
+    Layout/SpaceAroundKeyword:
+    Layout/SpaceAroundOperators:
+    Layout/SpaceBeforeBlockBraces:
+    Layout/SpaceBeforeComma:
+    Layout/SpaceBeforeComment:
+    Layout/SpaceBeforeFirstArg:
+    Layout/SpaceBeforeSemicolon:
+    Layout/SpaceInLambdaLiteral:
+    Layout/SpaceInsideArrayPercentLiteral:
+    Layout/SpaceInsideBlockBraces:
+    Layout/SpaceInsideHashLiteralBraces:
+    Layout/SpaceInsideParens:
+    Layout/SpaceInsidePercentLiteralDelimiters:
+    Layout/SpaceInsideRangeLiteral:
+    Layout/SpaceInsideStringInterpolation:
+    Layout/IndentationStyle:
+    Layout/TrailingEmptyLines:
+    Layout/TrailingWhitespace:
+    Layout/BlockAlignment:
+    Layout/DefEndAlignment:
+    Lint/DeprecatedClassMethods:
+    Lint/EmptyInterpolation:
+    Lint/LiteralInInterpolation:
+    Lint/MultipleComparison:
+    Lint/PercentStringArray:
+    Lint/PercentSymbolArray:
+    Lint/RescueType:
+    Lint/SafeNavigationChain:
+    Lint/RedundantStringCoercion:
+    Lint/UnifiedInteger:
+    Lint/RedundantSplatExpansion:
+    Lint/UnusedBlockArgument:
+    Lint/UnusedMethodArgument:
+    Performance/CaseWhenSplat:
+    Performance/Casecmp:
+    Performance/CompareWithBlock:
+    Performance/Count:
+    Performance/Detect:
+    Performance/DoubleStartEndWith:
+    Performance/FlatMap:
+    Performance/RangeInclude:
+    Performance/RedundantBlockCall:
+    Performance/RedundantMatch:
+    Performance/RedundantMerge:
+    Style/RedundantSortBy:
+    Performance/RegexpMatch:
+    Performance/ReverseEach:
+    Style/Sample:
+    Performance/Size:
+    Performance/StartWith:
+    Performance/StringReplacement:
+    Performance/TimesMap:
+    RSpec/BeEql:
+    RSpec/DescribedClass:
+    RSpec/EmptyLineAfterFinalLet:
+    RSpec/EmptyLineAfterSubject:
+    RSpec/ExampleWording:
+    RSpec/HookArgument:
+    RSpec/ImplicitExpect:
+    RSpec/InstanceSpy:
+    RSpec/ItBehavesLike:
+    RSpec/LeadingSubject:
+    RSpec/NotToNot:
+    RSpec/SharedContext:
+    RSpec/SingleArgumentMessageChain:
+    Security/JSONLoad:
+    Security/YAMLLoad:
+    Style/Alias:
+    Style/AndOr:
+    Style/ArrayJoin:
+    Style/Attr:
+    Style/BarePercentLiterals:
+    Style/BlockComments:
+    Style/BlockDelimiters:
+    Style/CharacterLiteral:
+    Style/ClassCheck:
+    Style/ClassMethods:
+    Style/CollectionMethods:
+    Style/ColonMethodCall:
+    Style/CommandLiteral:
+    Style/CommentAnnotation:
+    Style/ConditionalAssignment:
+    Style/DefWithParentheses:
+    Style/EachForSimpleLoop:
+    Style/EachWithObject:
+    Style/EmptyCaseCondition:
+    Style/EmptyElse:
+    Style/EmptyLiteral:
+    Style/EmptyMethod:
+    Style/EvenOdd:
+    Style/FormatString:
+    Style/HashSyntax:
+    Style/InfiniteLoop:
+    Style/InverseMethods:
+    Style/Lambda:
+    Style/LambdaCall:
+    Style/LineEndConcatenation:
+    Style/MethodCallWithoutArgsParentheses:
+    Style/MethodDefParentheses:
+    Style/MixinGrouping:
+    Style/MultilineIfThen:
+    Style/MultilineMemoization:
+    Style/MutableConstant:
+    Style/NegatedIf:
+    Style/NegatedWhile:
+    Style/NestedModifier:
+    Style/NestedParenthesizedCalls:
+    Style/Next:
+    Style/NilComparison:
+    Style/NonNilCheck:
+    Style/Not:
+    Style/NumericLiteralPrefix:
+    Style/NumericLiterals:
+    Style/OneLineConditional:
+    Style/ParallelAssignment:
+    Style/ParenthesesAroundCondition:
+    Style/PercentLiteralDelimiters:
+    Style/PercentQLiterals:
+    Style/PerlBackrefs:
+    Style/PreferredHashMethods:
+    Style/Proc:
+    Style/RaiseArgs:
+    Style/RedundantBegin:
+    Style/RedundantException:
+    Style/RedundantFreeze:
+    Style/RedundantParentheses:
+    Style/RedundantReturn:
+    Style/RedundantSelf:
+    Style/RegexpLiteral:
+    Style/RescueModifier:
+    Style/SafeNavigation:
+    Style/Semicolon:
+    Style/SignalException:
+    Style/SingleLineMethods:
+    Style/SpecialGlobalVars:
+    Style/StabbyLambdaParentheses:
+    Style/StringLiterals:
+    Style/StringLiteralsInInterpolation:
+    Style/StringMethods:
+    Style/SymbolArray:
+    Style/SymbolLiteral:
+    Style/TernaryParentheses:
+    Style/TrailingCommaInArguments:
+    Style/TrailingCommaInArrayLiteral:
+    Style/TrailingUnderscoreVariable:
+    Style/TrivialAccessors:
+    Style/UnlessElse:
+    Style/RedundantCapitalW:
+    Style/RedundantInterpolation:
+    Style/RedundantPercentQ:
+    Style/VariableInterpolation:
+    Style/WhenThen:
+    Style/WhileUntilDo:
+    Style/WhileUntilModifier:
+    Style/WordArray:
+      EnforcedStyle: brackets
+    Style/YodaCondition:
+    Style/ZeroLengthPredicate:
+
+  profiles:
+    # no rubocops enabled, caveat emptor!
+    off:
+      enabled_cops: {}
+
+    # a sanitized list of cops that'll cleanup a code base without much effort
+    # they all support autocorrect, and should be fairly uncontroversial across
+    # wide segments of the Community.
+    cleanups_only:
+      configs: *default_configs
+      enabled_cops: *cleanup_cops
+
+    # a good mix of cops with community recommended settings
+    strict:
+      configs: *default_configs
+      enabled_cops:
+        <<: *cleanup_cops
+        Bundler/DuplicatedGem:
+        Layout/EmptyLinesAroundBeginBody:
+        Lint/AmbiguousBlockAssociation:
+        Lint/AmbiguousOperator:
+        Lint/AmbiguousRegexpLiteral:
+        Lint/AssignmentInCondition:
+        Lint/CircularArgumentReference:
+        Layout/ConditionPosition:
+        Lint/Debugger:
+        Lint/DuplicateCaseCondition:
+        Lint/DuplicateMethods:
+        Lint/DuplicateHashKey:
+        Lint/EachWithObjectArgument:
+        Lint/ElseLayout:
+        Lint/EmptyEnsure:
+        Lint/EmptyExpression:
+        Lint/EmptyWhen:
+        Layout/EndAlignment:
+        Style/EndBlock:
+        Lint/EnsureReturn:
+        Lint/FloatOutOfRange:
+        Lint/FormatParameterMismatch:
+        Lint/SuppressedException:
+        Lint/ImplicitStringConcatenation:
+        Lint/IneffectiveAccessModifier:
+        Lint/InheritException:
+        Lint/LiteralAsCondition:
+        Lint/Loop:
+        Lint/NestedMethodDefinition:
+        Lint/NextWithoutAccumulator:
+        Lint/NonLocalExitFromIterator:
+        Lint/ParenthesesAsGroupedExpression:
+        Lint/RandOne:
+        Lint/RequireParentheses:
+        Lint/RescueException:
+        Lint/ScriptPermission:
+        Lint/ShadowedException:
+        Lint/ShadowingOuterLocalVariable:
+        Lint/UnderscorePrefixedVariableName:
+        Lint/RedundantCopDisableDirective:
+        Lint/UnreachableCode:
+        Lint/UselessAccessModifier:
+        Lint/UselessAssignment:
+        Lint/BinaryOperatorWithIdenticalOperands:
+        Lint/UselessElseWithoutRescue:
+        Lint/UselessSetterCall:
+        Lint/Void:
+        Layout/LineLength:
+        Performance/Caller:
+        Performance/EndWith:
+        Performance/FixedSize:
+        Style/HashEachMethods:
+        RSpec/AnyInstance:
+        RSpec/AroundBlock:
+        RSpec/BeforeAfterAll:
+        RSpec/DescribeMethod:
+        RSpec/DescribeSymbol:
+        RSpec/EmptyExampleGroup:
+        RSpec/ExpectActual:
+        RSpec/ExpectOutput:
+        RSpec/FilePath:
+        RSpec/Focus:
+        RSpec/InstanceVariable:
+        RSpec/IteratedExpectation:
+        RSpec/LetSetup:
+        RSpec/MessageChain:
+        RSpec/MessageSpies:
+          EnforcedStyle: receive
+        RSpec/MultipleDescribes:
+        RSpec/NamedSubject:
+        RSpec/OverwritingSetup:
+        RSpec/RepeatedDescription:
+        RSpec/RepeatedExample:
+        RSpec/ScatteredLet:
+        RSpec/ScatteredSetup:
+        RSpec/SubjectStub:
+        RSpec/VerifiedDoubles:
+        Security/Eval:
+        Security/MarshalLoad:
+        Naming/AsciiIdentifiers:
+        Style/BeginBlock:
+        Style/CaseEquality:
+        Naming/ClassAndModuleCamelCase:
+        Style/ClassAndModuleChildren:
+        Style/ClassVars:
+        Naming/ConstantName:
+        Style/Documentation:
+          Exclude:
+            - 'lib/puppet/parser/functions/**/*'
+            - 'spec/**/*'
+        Style/DoubleNegation:
+        Naming/FileName:
+        Lint/FlipFlop:
+        Style/For:
+        Style/FormatStringToken:
+        Style/GlobalVars:
+        Style/GuardClause:
+        Style/IdenticalConditionalBranches:
+        Style/IfInsideElse:
+        Style/IfUnlessModifierOfIfUnless:
+        Style/IfWithSemicolon:
+        Style/MethodCalledOnDoEndBlock:
+        Lint/MissingSuper:
+        Style/MissingRespondToMissing:
+        Naming/MethodName:
+        Style/ModuleFunction:
+        Style/MultilineBlockChain:
+        Style/MultilineIfModifier:
+        Style/MultilineTernaryOperator:
+        Style/MultipleComparison:
+        Style/NestedTernaryOperator:
+        Naming/BinaryOperatorParameterName:
+        Style/OptionalArguments:
+        Naming/PredicateName:
+        Style/SelfAssignment:
+        Style/StructInheritance:
+        Naming/VariableName:
+        RSpec/VariableName:
+        Performance/AncestorsInclude:
+        Performance/BigDecimalWithNumericArgument:
+        Performance/BlockGivenWithExplicitBlock:
+        Performance/ConstantRegexp:
+        Performance/MethodObjectAsBlock:
+        Performance/RedundantSortBlock:
+        Performance/RedundantStringChars:
+        Performance/ReverseFirst:
+        Performance/SortReverse:
+        Performance/Squeeze:
+        Performance/StringInclude:
+        Performance/Sum:
+
+    # Uses rubocop default cops
+    hardcore:
+      configs: *default_configs
+      enabled_cops: all
+Gemfile:
+  required:
+    ':development':
+      # Json gems should be pinned to their default versions so that users aren't forced to recompile the native extensions.
+      # See the following for a version matrix: https://stdgems.org/json/#gem-version
+      - gem: json
+        version: '= 2.6.1'
+        condition: "Gem::Requirement.create(['>= 3.1.0', '< 3.1.3']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: json
+        version: '= 2.6.3'
+        condition: "Gem::Requirement.create(['>= 3.2.0', '< 4.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+        # Forces ruby to use builtin racc vs trying to compile native extensions.
+      - gem: racc
+        version: '~> 1.4.0'
+        condition: "Gem::Requirement.create(['>= 2.7.0', '< 3.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: deep_merge
+        version: '~> 1.2.2'
+      - gem: 'voxpupuli-openvox-lint-plugins'
+        version: '~> 5.0'
+      - gem: 'facterdb'
+        version: '~> 2.1'
+        condition: "Gem::Requirement.create(['< 3.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: 'facterdb'
+        version: '~> 3.0'
+        condition: "Gem::Requirement.create(['>= 3.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: 'metadata-json-lint'
+        version: '~> 4.0'
+      - gem: 'json-schema'
+        version: '< 5.1.1'
+      - gem: 'rspec-puppet-facts'
+        version: '~> 4.0'
+        condition: "Gem::Requirement.create(['< 3.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: 'rspec-puppet-facts'
+        version: '~> 5.0'
+        condition: "Gem::Requirement.create(['>= 3.0.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))"
+      - gem: 'dependency_checker'
+        version: '~> 1.0.0'
+      - gem: 'parallel_tests'
+        version: '= 3.12.1'
+      - gem: 'pry'
+        version: '~> 0.10'
+      - gem: 'simplecov-console'
+        version: '~> 0.9'
+      - gem: 'puppet-debugger'
+        version: '~> 1.6'
+      - gem: 'rubocop'
+        version: '~> 1.73.0'
+      - gem: 'rubocop-performance'
+        version: '~> 1.24.0'
+      - gem: 'rubocop-rspec'
+        version: '~> 3.5.0'
+      - gem: 'rubocop-rspec_rails'
+        version: '~> 2.31.0'
+      - gem: 'rubocop-factory_bot'
+        version: '~> 2.27.0'
+      - gem: 'rubocop-capybara'
+        version: '~> 2.22.0'
+      - gem: 'rubocop-ast'
+        version: '< 1.43.0'
+        platforms:
+          - mswin
+          - mingw
+          - x64_mingw
+      - gem: 'rb-readline'
+        version: '= 0.5.5'
+        platforms:
+          - mswin
+          - mingw
+          - x64_mingw
+      - gem: 'bigdecimal'
+        version: '< 3.2.2'
+        platforms:
+          - mswin
+          - mingw
+          - x64_mingw
+    ':development, :release_prep':
+      - gem: 'puppet-strings'
+        version: '~> 4.0'
+      - gem: 'puppetlabs_spec_helper'
+        version: '~> 8.0'
+      - gem: 'puppet-blacksmith'
+        version: '~> 7.0'
+    ':system_tests':
+      - gem: 'puppet_litmus'
+        version:
+        - '~> 2.0'
+        platforms:
+          - ruby
+          - x64_mingw
+        condition: "!ENV['PUPPET_FORGE_TOKEN'].to_s.empty?"
+      - gem: 'puppet_litmus'
+        version:
+        - '~> 1.0'
+        platforms:
+          - ruby
+          - x64_mingw
+        condition: "ENV['PUPPET_FORGE_TOKEN'].to_s.empty?"
+      - gem: 'CFPropertyList'
+        version:
+        - '< 3.0.7'
+        platforms:
+          - mswin
+          - mingw
+          - x64_mingw
+      - gem: 'serverspec'
+        version: '~> 2.41'
+spec/default_facts.yml:
+  is_pe: false
+  networking:
+    mac: 'AA:AA:AA:AA:AA:AA'
+    ip: '172.16.254.254'
+    ip6: "FE80:0000:0000:0000:AAAA:AAAA:AAAA"
+spec/spec_helper.rb:
+  coverage_report: true
+  minimum_code_coverage_percentage: 0
+  mock_with: ":rspec"
+  strict_level: ":warning"
+  strict_variables: true
+.github/workflows/ci.yml:
+  unmanaged: true
+.github/workflows/nightly.yml:
+  unmanaged: true
+.github/workflows/release.yml:
+  unmanaged: true
+.github/workflows/release_prep.yml:
+  unmanaged: true

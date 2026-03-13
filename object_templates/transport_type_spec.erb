@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require 'puppet/transport/schema/<%= name %>'
+
+RSpec.describe 'the <%= name %> transport' do
+  it 'loads' do
+    expect(Puppet::ResourceApi::Transport.list['<%= name %>']).not_to be_nil
+  end
+end

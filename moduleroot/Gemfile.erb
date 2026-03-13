@@ -1,0 +1,159 @@
+# frozen_string_literal: true
+
+<%
+def gem_length(gem)
+  if gem['version']
+    gem_output = ''
+    Array(gem['version']).each do |version|
+      gem_output += " '#{version}',"
+    end
+    gem_output = gem_output.chomp(',')
+
+    if gem['from_env']
+      version_len = " *location_for(ENV['#{gem['from_env']}'])".length + " ||#{gem_output}".length
+    else
+      version_len = ",#{gem_output}".length
+    end
+  else
+    version_len = 0
+  end
+  gem['gem'].length + version_len
+end
+
+def gem_spec(gem, max_len)
+  output = "\"#{gem['gem']}\""
+
+  if gem['version']
+    gem_output = ''
+    # For each version requirement given add to the string and place a `,`
+    Array(gem['version']).each do |version|
+      gem_output += " '#{version}',"
+    end
+    gem_output = gem_output.chomp(',')
+
+    if gem['from_env']
+      output += ", *location_for(ENV['#{gem['from_env']}'] ||#{gem_output})"
+    else
+      output += ",#{gem_output}"
+    end
+  end
+
+  options = []
+  options << "require: false" if gem['from_env'].nil?
+  options << "git: '#{gem['git']}'" unless gem['git'].nil?
+  options << "branch: '#{gem['branch']}'" unless gem['branch'].nil?
+  options << "ref: '#{gem['ref']}'" unless gem['ref'].nil?
+  options << "platforms: #{gem['platforms'].inspect}" unless gem['platforms'].nil?
+  options << "source: #{gem['source'].inspect}" unless gem['source'].nil?
+
+  unless options.empty?
+    output += ', '
+    output += ' ' * (max_len - gem['length'])
+
+    output += options.join(', ')
+  end
+
+  output += " if #{gem['condition']}" unless gem['condition'].nil?
+
+  output
+end
+-%>
+# For puppetcore, set GEM_SOURCE_PUPPETCORE = 'https://rubygems-puppetcore.puppet.com'
+gemsource_default = ENV['GEM_SOURCE'] || 'https://rubygems.org'
+gemsource_puppetcore = if ENV['PUPPET_FORGE_TOKEN']
+  'https://rubygems-puppetcore.puppet.com'
+else
+  ENV['GEM_SOURCE_PUPPETCORE'] || gemsource_default
+end
+source gemsource_default
+
+def location_for(place_or_constraint, fake_constraint = nil, opts = {})
+  git_url_regex  = /\A(?<url>(?:https?|git)[:@][^#]*)(?:#(?<branch>.*))?/
+  file_url_regex = %r{\Afile://(?<path>.*)}
+
+  if place_or_constraint && (git_url = place_or_constraint.match(git_url_regex))
+    # Git source → ignore :source, keep fake_constraint
+    [fake_constraint, { git: git_url[:url], branch: git_url[:branch], require: false }].compact
+
+  elsif place_or_constraint && (file_url = place_or_constraint.match(file_url_regex))
+    # File source → ignore :source, keep fake_constraint or default >= 0
+    [fake_constraint || '>= 0', { path: File.expand_path(file_url[:path]), require: false }]
+
+  else
+    # Plain version constraint → merge opts (including :source if provided)
+    [place_or_constraint, { require: false }.merge(opts)]
+  end
+end
+
+# Print debug information if DEBUG_GEMS or VERBOSE is set
+def print_gem_statement_for(gems)
+  puts 'DEBUG: Gem definitions that will be generated:'
+  gems.each do |gem_name, gem_params|
+    puts "DEBUG:   gem #{([gem_name.inspect] + gem_params.map(&:inspect)).join(', ')}"
+  end
+end
+
+<%
+  groups = {}
+  (@configs['required'].keys + ((@configs['optional'] || {}).keys)).uniq.each do |key|
+    groups[key] = (@configs['required'][key] || []) + ((@configs['optional'] || {})[key] || [])
+  end
+-%>
+<% groups.each do |group, gems| -%>
+group <%= group %> do
+<%
+     gems.map! do |gem|
+       gem = @configs['overrides']&.find { |prefer| prefer['gem'] == gem['gem'] } || gem
+       {
+         'gem'           => gem['gem'],
+         'version'       => gem['version'],
+         'platforms'     => gem['platforms'].nil? ? nil : Array[*gem['platforms']].map(&:to_sym),
+         'git'           => gem['git'],
+         'branch'        => gem['branch'],
+         'ref'           => gem['ref'],
+         'length'        => gem_length(gem),
+         'from_env'      => gem['from_env'],
+         'condition'     => gem['condition'],
+         'source'        => gem['source'],
+       }
+     end
+
+     maxlen = gems.map { |r| r['length'] }.max
+-%>
+<%   gems.each do |gem| -%>
+  gem <%= gem_spec(gem, maxlen) %>
+<%   end -%>
+end
+<% end -%>
+
+gems = {}
+bolt_version = ENV.fetch('BOLT_GEM_VERSION', nil)
+puppet_version = ENV.fetch('PUPPET_GEM_VERSION', nil)
+facter_version = ENV.fetch('FACTER_GEM_VERSION', nil)
+hiera_version = ENV.fetch('HIERA_GEM_VERSION', nil)
+
+gems['bolt'] = location_for(bolt_version, nil, { source: gemsource_puppetcore })
+gems['puppet'] = location_for(puppet_version, nil, { source: gemsource_puppetcore })
+gems['facter'] = location_for(facter_version, nil, { source: gemsource_puppetcore })
+gems['hiera'] = location_for(hiera_version, nil, {}) if hiera_version
+
+# Generate the gem definitions
+print_gem_statement_for(gems) if ENV['DEBUG']
+gems.each do |gem_name, gem_params|
+  gem gem_name, *gem_params
+end
+
+# Evaluate Gemfile.local and ~/.gemfile if they exist
+extra_gemfiles = [
+  "#{__FILE__}.local",
+  File.join(Dir.home, '.gemfile')
+]
+
+extra_gemfiles.each do |gemfile|
+  next unless File.file?(gemfile) && File.readable?(gemfile)
+
+  # rubocop:disable Security/Eval
+  eval(File.read(gemfile), binding)
+  # rubocop:enable Security/Eval
+end
+# vim: syntax=ruby

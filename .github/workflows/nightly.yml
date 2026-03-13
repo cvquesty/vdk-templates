@@ -1,0 +1,27 @@
+name: "nightly"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - name: "Export variables"
+        run: |
+          export VDK=release
+          export VDK_FRONTEND=noninteractive
+          echo $BASH_VERSION
+
+      - name: "Install VDK"
+        run: |
+          .ci/install_vdk.sh
+
+      - name: "Run Tests"
+        run: |
+          .ci/test_script.sh

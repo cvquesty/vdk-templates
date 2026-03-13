@@ -1,0 +1,47 @@
+<%
+def requires(item)
+  if item.is_a? String
+    line = "require '#{item}'"
+  elsif item.is_a? Hash
+    line = "require '#{item['require']}'" unless item['require'].nil?
+    line = "#{line} if #{item['conditional']}" unless item['require'].nil? and item['conditional'].nil?
+  end
+  line
+end
+-%>
+# frozen_string_literal: true
+
+require 'bundler'
+require 'puppet_litmus/rake_tasks' if Gem.loaded_specs.key? 'puppet_litmus'
+require 'puppetlabs_spec_helper/rake_tasks'
+require 'puppet-syntax/tasks/puppet-syntax'
+require 'puppet-strings/tasks' if Gem.loaded_specs.key? 'puppet-strings'
+<% if ! @configs['requires'].nil? -%>
+<%   @configs['requires'].each do |item| -%>
+<%= requires(item) %>
+<%   end -%>
+<% end -%>
+<% if ! @configs['imports'].nil? %>
+<%   @configs['imports'].each do |item| -%>
+import '<%= item %>'
+<%   end -%>
+<% end -%>
+
+<% checks = @configs['default_disabled_lint_checks'] + ( @configs['extra_disabled_lint_checks'] || [] ) -%>
+<% checks.each do |check| -%>
+PuppetLint.configuration.send('disable_<%= check %>')
+<% end -%>
+<% if ! @configs['linter_fail_on_warnings'].nil? -%>
+PuppetLint.configuration.fail_on_warnings = <%= @configs['linter_fail_on_warnings'] %>
+<% end -%>
+<% linter_options =  @configs['linter_options'] || [] -%>
+<% linter_options.each do |option| -%>
+PuppetLint.configuration.send('<%= option %>')
+<% end -%>
+<% if @configs['linter_exclusions'] -%>
+PuppetLint.configuration.ignore_paths = <%= @configs['linter_exclusions']%>
+<% end -%>
+
+<%- [@configs['extras']].flatten.compact.each do |line| -%>
+<%= line %>
+<%- end -%>
