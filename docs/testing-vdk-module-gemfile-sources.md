@@ -6,7 +6,7 @@ This guide explains how to vary the gemsources and gem versions in the Gemfile o
 
 | Environment Variable      | Purpose                                                                                   | Example Value                                                      |
 |--------------------------|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| GEM_SOURCE               | Sets the default gem source for all gems.                                                 | https://rubygems.org<br>https://artifactory.delivery.puppetlabs.net/artifactory/api/gems/rubygems |
+| GEM_SOURCE               | Sets the default gem source for all gems.                                                 | https://rubygems.org |
 | GEM_SOURCE_PUPPETCORE    | Sets the gem source specifically for puppetcore gems (puppet, facter).                    | https://rubygems-puppetcore.puppet.com                             |
 | PUPPET_GEM_VERSION       | Specifies the Puppet gem version, git repo, or local path to use.                         | 8.10.0<br>https://github.com/puppetlabs/puppet.git<br>/path/to/puppet |
 | FACTER_GEM_VERSION       | Specifies the Facter gem version, git repo, or local path to use.                         | 4.0.52<br>https://github.com/puppetlabs/facter.git<br>/path/to/facter |
@@ -127,8 +127,8 @@ Create a new module and test with git-based gem sources.
 ```bash
 cd ~/vdk_gemfile_testing/new_module_tests
 source ~/vdk_gemfile_testing/clean_environment.sh
-export PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet-private.git#main'
-export FACTER_GEM_VERSION='https://github.com/puppetlabs/facter-private.git#main'
+export PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#main'
+export FACTER_GEM_VERSION='https://github.com/puppetlabs/facter.git#main'
 
 # Create new module with enhanced template (local filesystem)
 rm -rf ~/vdk_gemfile_testing/new_module_tests/test_git_gems
@@ -168,9 +168,9 @@ git clone https://github.com/puppetlabs/puppetlabs-motd.git
 cd puppetlabs-motd
 
 # Update using --template-ref, e.g.,
-vdk update --template-ref=https://github.com/puppetlabs/vdk-templates --template-ref=${TEMPLATE_REPO_BRANCH}  
+vdk update --template-url=https://github.com/voxpupuli/vdk-templates --template-ref=${TEMPLATE_REPO_BRANCH}  
 
-export PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet-private.git#main'
+export PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#main'
 
 # Test gem installation from git sources
 rm -rf Gemfile.lock vendor

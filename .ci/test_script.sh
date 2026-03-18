@@ -9,43 +9,43 @@ TEMPLATE_PR_DIR=$PWD
 git checkout -b ci_commit
 
 # Test if new module from PR commit is still functional.
-pdk new module new_module --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview
+vdk new module new_module --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview
 pushd new_module
 grep template < metadata.json
 cp "$TEMPLATE_PR_DIR/.ci/fixtures/new_provider_sync.yml" ./.sync.yml
 grep -A 1 "Performance/CaseWhenSplat" ./.rubocop.yml | grep -q "true" # Ensure that the template is applied
-pdk update --force
+vdk update --force
 grep -A 1 "Performance/CaseWhenSplat" ./.rubocop.yml | grep -q "false" # Ensure that the update command changes the template
-pdk new class new_module
-pdk new defined_type test_type
-pdk new fact test_fact || true # not available in pdk 1.18 yet
-pdk new function --type native testfunc_nat || true # not available in pdk 1.18 yet
-pdk new function --type v4 testfunc_v4 || true # not available in pdk 1.18 yet
-pdk new provider test_provider
-pdk new task test_task
-pdk new transport test_transport
-pdk validate
-pdk test unit
+vdk new class new_module
+vdk new defined_type test_type
+vdk new fact test_fact
+vdk new function --type native testfunc_nat
+vdk new function --type v4 testfunc_v4
+vdk new provider test_provider
+vdk new task test_task
+vdk new transport test_transport
+vdk validate
+vdk test unit
 popd
 
-rm -f ~/.pdk/cache/answers.json
+rm -f ~/.vdk/cache/answers.json
 
 # Create new module from default template-url and release tag
-pdk new module convert_from_release_tag --skip-interview
+vdk new module convert_from_release_tag --skip-interview
 pushd convert_from_release_tag
 grep template < metadata.json
 # Attempt to convert to PR commit from release tag
-pdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force
+vdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force
 cat convert_report.txt
 popd
 
-rm -f ~/.pdk/cache/answers.json
+rm -f ~/.vdk/cache/answers.json
 
 # Create new module from main branch of official templates repo
-pdk new module convert_from_main --template-url="https://github.com/puppetlabs/pdk-templates.git" --template-ref=main --skip-interview
+vdk new module convert_from_main --template-url="https://github.com/voxpupuli/vdk-templates.git" --template-ref=main --skip-interview
 pushd convert_from_main
 grep template < metadata.json
 # Attempt to convert to PR commit from official/main
-pdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force
+vdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force
 cat convert_report.txt
 popd

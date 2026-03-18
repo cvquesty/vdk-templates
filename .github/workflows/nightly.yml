@@ -8,15 +8,17 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      VDK: release
+      VDK_FRONTEND: noninteractive
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
 
-      - name: "Export variables"
-        run: |
-          export VDK=release
-          export VDK_FRONTEND=noninteractive
-          echo $BASH_VERSION
+      - name: "Set up Ruby"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1"
 
       - name: "Install VDK"
         run: |

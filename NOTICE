@@ -1,8 +1,9 @@
-Puppet Development Kit Module Template
+Vox Development Kit Module Template
 
+Originally based on Puppet Development Kit (PDK) Module Template
 Copyright (C) 2017 Puppet, Inc.
 
-Puppet Labs can be contacted at: info@puppetlabs.com
+VDK Templates maintained by Vox Pupuli — https://voxpupuli.org/
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +17,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-By applying the templates through the PDK (through `pdk new module`,
-`pdk convert`, `pdk update`, or `pdk new ...`) the modifications
+By applying the templates through VDK (through `vdk new module`,
+`vdk convert`, `vdk update`, or `vdk new ...`) the modifications
 required by section 4 (Redistribution) of the LICENSE are fulfilled.

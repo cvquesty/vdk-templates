@@ -1,6 +1,6 @@
 ---
 common:
-  owner: puppetlabs
+  owner: voxpupuli
 .gitattributes:
   include:
     '*.rb': 'eol=lf'
