@@ -24,7 +24,7 @@ jobs:
       
       - name: Validate YAML syntax
         run: |
-          ruby -e "require 'yaml'; YAML.load_file('config_defaults.yml')"
+          ruby -e "require 'yaml'; YAML.load_file('config_defaults.yml', aliases: true)"
           echo "config_defaults.yml is valid YAML"
       
       - name: Check ERB syntax
