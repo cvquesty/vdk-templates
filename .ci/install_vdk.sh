@@ -3,7 +3,7 @@ set -x # echo commands with vars expanded
 set -e # exit immediately on error
 
 VDK_GEM="vdk"
-VDK_SOURCE_REPO="${VDK_SOURCE_REPO:-https://github.com/voxpupuli/vdk.git}"
+VDK_SOURCE_REPO="${VDK_SOURCE_REPO:-https://github.com/cvquesty/vdk.git}"
 
 install_from_rubygems() {
     echo "Attempting to install VDK from RubyGems..."
