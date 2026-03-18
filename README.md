@@ -1,8 +1,9 @@
 # VDK Templates
 
-[![CI](https://github.com/voxpupuli/vdk-templates/actions/workflows/ci.yml/badge.svg)](https://github.com/voxpupuli/vdk-templates/actions/workflows/ci.yml)
+[![CI](https://github.com/cvquesty/vdk-templates/actions/workflows/ci.yml/badge.svg)](https://github.com/cvquesty/vdk-templates/actions/workflows/ci.yml)
+[![Nightly](https://github.com/cvquesty/vdk-templates/actions/workflows/nightly.yml/badge.svg)](https://github.com/cvquesty/vdk-templates/actions/workflows/nightly.yml)
 
-This repository contains the default templates used by [VDK](https://github.com/voxpupuli/vdk) (Vox Development Kit) when creating new Puppet/OpenVox modules and generating module content.
+This repository contains the default templates used by [VDK](https://github.com/cvquesty/vdk) (Vox Development Kit) when creating new Puppet/OpenVox modules and generating module content.
 
 VDK Templates is a community fork of [pdk-templates](https://github.com/puppetlabs/pdk-templates), maintained by [Vox Pupuli](https://voxpupuli.org/).
 
@@ -15,10 +16,10 @@ You can use these templates (or your own fork) with VDK:
 vdk new module mymodule
 
 # Use a specific template repository
-vdk new module mymodule --template-url=https://github.com/voxpupuli/vdk-templates
+vdk new module mymodule --template-url=https://github.com/cvquesty/vdk-templates
 
 # Use a specific branch/tag
-vdk new module mymodule --template-url=https://github.com/voxpupuli/vdk-templates --template-ref=main
+vdk new module mymodule --template-url=https://github.com/cvquesty/vdk-templates --template-ref=main
 ```
 
 ## Template Structure
@@ -85,7 +86,7 @@ Gemfile:
 
 ## Contributing
 
-Contributions are welcome! Please see the [VDK repository](https://github.com/voxpupuli/vdk) for contribution guidelines.
+Contributions are welcome! Please see the [VDK repository](https://github.com/cvquesty/vdk) for contribution guidelines.
 
 ## License
 
