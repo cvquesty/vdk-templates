@@ -2,10 +2,15 @@
 
 [![CI](https://github.com/cvquesty/vdk-templates/actions/workflows/ci.yml/badge.svg)](https://github.com/cvquesty/vdk-templates/actions/workflows/ci.yml)
 [![Nightly](https://github.com/cvquesty/vdk-templates/actions/workflows/nightly.yml/badge.svg)](https://github.com/cvquesty/vdk-templates/actions/workflows/nightly.yml)
+![Status](https://img.shields.io/badge/status-stable-green)
+![Templates](https://img.shields.io/badge/templates-vdk--compatible-blue)
 
 This repository contains the default templates used by [VDK](https://github.com/cvquesty/vdk) (Vox Development Kit) when creating new Puppet/OpenVox modules and generating module content.
 
 VDK Templates is a community fork of [pdk-templates](https://github.com/puppetlabs/pdk-templates), maintained by [Vox Pupuli](https://voxpupuli.org/).
+
+> **Status:** Stable — Production-ready templates for OpenVox/Puppet module development
+> **Compatible with:** VDK 0.1.0+, OpenVox 8.x, Puppet 7.x/8.x
 
 ## Using Custom Templates
 
