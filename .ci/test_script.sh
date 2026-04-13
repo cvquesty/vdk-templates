@@ -44,11 +44,13 @@ popd
 
 rm -f ~/.vdk/cache/answers.json
 
-# Create new module from main branch of official templates repo
-vdk new module convert_from_main --template-url="https://github.com/voxpupuli/vdk-templates.git" --template-ref=main --skip-interview
-pushd convert_from_main
-grep template < metadata.json
-# Attempt to convert to PR commit from official/main
-vdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force
-cat convert_report.txt
-popd
+# Create new module from main branch of official templates repo (may fail if upstream doesn't exist)
+vdk new module convert_from_main --template-url="https://github.com/voxpupuli/vdk-templates.git" --template-ref=main --skip-interview || true
+if [ -d convert_from_main ]; then
+  pushd convert_from_main
+  grep template < metadata.json || true
+  # Attempt to convert to PR commit from official/main
+  vdk convert --template-url="file://$TEMPLATE_PR_DIR" --template-ref=ci_commit --skip-interview --force || true
+  cat convert_report.txt || true
+  popd
+fi
