@@ -4,6 +4,9 @@ set -e # exit immediately on error
 
 TEMPLATE_PR_DIR=$PWD
 
+# Clean up any leftover directories from previous runs (GitHub runner may cache workspace)
+rm -rf new_module convert_from_release_tag convert_from_main
+
 # Make a branch from checked out HEAD so that we can target
 # it specifically with --template-ref
 git checkout -b ci_commit
